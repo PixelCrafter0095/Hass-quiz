@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Savanna Biome Quiz</title>
+<style>
+  :root{
+    --bg:#f7f7f5;
+    --card:#ffffff;
+    --border:#e5e5e3;
+    --text:#1a1a1a;
+    --muted:#8a8a86;
+    --accent:#1a1a1a;
+    --green:#2e7d32; 
+    --red:#e5484d;
+    --grey-star:#d9d9d6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    display:flex;
+    justify-content:center;
+    padding:40px 20px;
+  }
+  .quiz{
+    width:100%;
+    max-width:640px;
+  }
+  .header{
+    text-align:center;
+    margin-bottom:8px;
+  }
+  .header h1{
+    font-size:22px;
+    font-weight:700;
+    margin:0 0 2px;
+  }
+  .header p{
+    margin:0;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .stars{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:4px;
+    margin:20px 0 28px;
+  }
+  .star{
+    width:20px;
+    height:20px;
+    color:var(--grey-star);
+    transition:color .25s ease, transform .25s ease;
+  }
+  .star.current{
+    transform:scale(1.15);
+  }
+  .star.correct{ color:var(--green); } 
+  .star.wrong{ color:var(--red); }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:28px 24px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.04);
+  }
+  .top-row{
+    display:flex;
+    justify-content:between;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .qcount{
+    font-size:12px;
+    font-weight:600;
+    color:var(--muted);
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+  .home-btn{
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    padding:4px 8px;
+    border-radius:4px;
+    transition: background .15s;
+  }
+  .home-btn:hover{
+    background:#f0f0ee;
+    color:var(--text);
+  }
+  .question{
+    font-size:19px;
+    font-weight:600;
+    line-height:1.4;
+    margin-bottom:22px;
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .option{
+    text-align:left;
+    padding:13px 16px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:#fafafa;
+    font-size:15px;
+    color:var(--text);
+    cursor:pointer;
+    transition:background .15s ease, border-color .15s ease, transform .1s ease;
+  }
+  .option:hover:not(:disabled){
+    background:#f0f0ee;
+    border-color:#d3d3d0;
+  }
+  .option:active:not(:disabled){
+    transform:scale(0.99);
+  }
+  .option:disabled{
+    cursor:default;
+  }
+  .option.correct{
+    background:#edf7ed; 
+    border-color:var(--green);
+    color:var(--green);
+    font-weight:600;
+  }
+  .option.wrong{
+    background:#fdeceb;
+    border-color:var(--red);
+    color:#a4201f;
+    font-weight:600;
+  }
+  .footer-row{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:22px;
+  }
+  .next-btn{
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    padding:10px 20px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease;
+  }
+  .next-btn.show{
+    opacity:1;
+    pointer-events:auto;
+  }
+  .result{
+    text-align:center;
+    padding:20px 0 4px;
+  }
+  .result h2{
+    font-size:24px;
+    margin-bottom:6px;
+  }
+  .result p{
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:22px;
+  }
+  .restart-btn{
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    padding:11px 22px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  
+  /* Menu Layout Styles */
+  .menu-view {
+    text-align: center;
+  }
+  .menu-view p {
+    color: var(--muted);
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+  .level-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .level-btn {
+    background: #fafafa;
+    border: 1px solid var(--border);
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .level-btn:hover {
+    background: #f0f0ee;
+    border-color: #d3d3d0;
+  }
+</style>
+</head>
+<body>
+
+<div class="quiz">
+  <div class="header">
+    <h1>Savanna Biome Quiz</h1>
+    <p id="subheading">Select a level to start</p>
+  </div>
+
+  <div class="stars" id="stars" style="display: none;"></div>
+
+  <div class="card" id="quizCard">
+    <div class="menu-view" id="menuView">
+      <p>Test your knowledge on ecosystem factors and adaptations.</p>
+      <div class="level-buttons">
+        <button class="level-btn" onclick="startQuiz('easy')">Easy Level (15 Questions)</button>
+        <button class="level-btn" onclick="startQuiz('medium')">Medium Level (15 Questions)</button>
+        <button class="level-btn" onclick="startQuiz('hard')">Hard Level (15 Questions)</button>
+      </div>
+    </div>
+
+    <div id="gameView" style="display: none;">
+      <div class="top-row">
+        <div class="qcount" id="qcount">Question 1 of 15</div>
+        <button class="home-btn" onclick="goHome()">Home</button>
+      </div>
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+      <div class="footer-row">
+        <button class="next-btn" id="nextBtn">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const questionPool = {
+  easy: [
+    {q:"What is the weather generally like in a savanna biome?", options:["Cold and dry all year long","Warm all year, with a clear wet season and a dry season","Freezing winters and mild summers","Constant heavy rain every day with no dry periods"], answer:1},
+    {q:"Which continent contains the largest and most famous savanna region?", options:["South America","Asia","Africa","Europe"], answer:2},
+    {q:"What is the main type of plant life you see in a savanna?", options:["Thick, dense rainforest trees","Wide grasslands with scattered trees","Desert cacti and succulents","Short moss and lichens"], answer:1},
+    {q:"During the long dry season, what color do savanna grasses usually turn?", options:["Bright green","Golden brown","Deep blue","Dark purple"], answer:1},
+    {q:"Which of these animals is a well-known native predator in the African savanna?", options:["Polar bear","Lion","Sloth","Bengal tiger"], answer:1},
+    {q:"Which of these basic things do savanna plants compete for the most during the dry season?", options:["Sunlight","Space to grow away from rocks","Water","Insects for pollination"], answer:2},
+    {q:"What kind of weather marks the start of the savanna's wet season?", options:["Heavy snowstorms","Frequent light frost","Heavy and continuous rainfall","Strong dust and sand storms"], answer:2},
+    {q:"Which of these animals is a large plant-eater that uses its long neck to eat savanna tree leaves?", options:["Cheetah","Zebra","Giraffe","Hippopotamus"], answer:2},
+    {q:"True or false: Savannas are found near the equator in tropical regions.", options:["True","False"], answer:0},
+    {q:"What usually happens to many small streams and watering holes during the peak dry season?", options:["They freeze over completely","They dry up entirely","They overflow into large floods","They turn into saltwater lakes"], answer:1},
+    {q:"Which of these animals is a flightless bird native to the African savanna?", options:["Ostrich","Penguin","Kiwi","Pelican"], answer:0},
+    {q:"What natural event helps clean up dead plant matter and stimulate new grass growth in the savanna?", options:["Earthquakes","Volcanic eruptions","Wildfires","Blizzards"], answer:2},
+    {q:"Which of these animals travels in large, striped herds across the savanna plains?", options:["Kangaroo","Zebra","Grizzly bear","Leopard"], answer:1},
+    {q:"What basic structural feature describes a savanna?", options:["A solid canopy of touching tree branches","An open landscape dominated by grasses","A landscape entirely devoid of any vegetation","A dense wetland dominated by peat moss"], answer:1},
+    {q:"How would you describe the temperature of a tropical savanna throughout the year?", options:["Consistently warm to hot","Dropping below freezing every night","Constantly changing from freezing to mild every week","Extremely cold with short summer peaks"], answer:0}
+  ],
+  medium: [
+    {q:"Why are large trees spread so far apart instead of growing close together in the savanna?", options:["The soil is poisoned by heavy metals","Not enough yearly water and regular grass fires stop dense forests from growing","The grass blocks all sunlight from reaching tree seeds","There are no insects to pollinate tree flowers"], answer:1},
+    {q:"How does the thick, water-storing trunk of a Baobab tree help it survive?", options:["It keeps the tree from blowing over in windy storms","It keeps the plant alive by providing water throughout the dry season","It stops birds and insects from nesting in the branches","It helps the tree absorb more carbon dioxide at night"], answer:1},
+    {q:"What adaptation allows savanna grasses to survive frequent fires?", options:["They have a slimy, wet coating on their blades","They have deep root systems that quickly grow new grass from underground","They finish their whole life cycle during the cold winter","They drop seeds that only open when buried in deep mud"], answer:1},
+    {q:"Why do iconic savanna trees like the Acacia often have flat, umbrella-shaped tops?", options:["To catch as much morning frost as possible","To catch plenty of sunlight while keeping leaves high away from short animals","To stop large birds from landing on their seed pods","To drop rain water directly onto their trunk"], answer:1},
+    {q:"What is the main reason large herds of herbivores (like wildebeests) migrate long distances?", options:["To escape changing wind directions","To follow the rains that make fresh grass and water available","To find materials to build nests for winter","To run away from areas with too much sunlight"], answer:1},
+    {q:"What feature do many savanna shrubs use to defend themselves against hungry herbivores?", options:["Broad, delicate leaves","Sharp thorns and spines","Sticky, sweet sap that attracts ants","Brightly colored flowers that mimic predators"], answer:1},
+    {q:"How do burrowing animals, like meerkats or warthogs, benefit from digging underground?", options:["It helps them find frozen pockets of water","It protects them from extreme daytime heat and surface predators","It allows them to consume nutrients directly from deep bedrock","It keeps them safe from seasonal flooding events"], answer:1},
+    {q:"Why do many savanna birds follow large herds of grazing mammals?", options:["To protect the mammals from large predators","To feed on insects stirred up from the grass by the moving herds","To gather shed fur to line their nests","To use the herds as shields against strong winds"], answer:1},
+    {q:"What problem do plants face if they grow too slowly after a savanna fire?", options:["They will be buried under heavy snowfall","They will be crowded out and overtaken by rapidly regenerating grasses","They will lack access to carbon dioxide","Their roots will rot from lack of soil movement"], answer:1},
+    {q:"How do seasonal changes affect the hunting strategies of predators like lions?", options:["Lions hibernate during the dry season","Lions gather around remaining watering holes where prey is forced to visit","Lions shift to eating tree fruit when prey migrates","Lions travel to different continents during the wet season"], answer:1},
+    {q:"Which animal group plays a major role in keeping savanna trees pruned and preventing them from overtaking grasslands?", options:["Small rodents","Large herbivores like elephants and giraffes","Migratory waterfowl","Carnivorous birds of prey"], answer:1},
+    {q:"What is a major threat to the boundaries of natural savanna ecosystems today?", options:["Expansion of agricultural farming and livestock grazing","An overabundance of global rainfall","The natural movement of tectonic plates","A complete lack of solar radiation"], answer:0},
+    {q:"Why is the wet season critical for savanna animals that are reproducing?", options:["It provides a dark environment to hide offspring","Food is abundant, ensuring enough nourishment for parents and youth","Temperatures drop down close to freezing","Predators are unable to move through mud"], answer:1},
+    {q:"What happens to the nutrient levels of savanna grasses as the dry season progresses?", options:["Nutrient levels increase significantly","Nutrient levels drop, making the grass less nourishing for herbivores","The grass turns into a poisonous substance","The grass becomes completely filled with liquid water"], answer:1},
+    {q:"How do scavengers like vultures support the health of the savanna ecosystem?", options:["They plant seeds by burying them in the ground","They consume carcasses, reducing the spread of diseases","They control the population of large predators","They aerate the soil by digging large burrows"], answer:1}
+  ],
+  hard: [
+    {q:"Which statement best describes the soil quality in a typical tropical savanna?", options:["It is super deep, dark, and full of nutrients from rotting leaves","It stays completely frozen like permafrost just below the surface","It is porous, quickly loses water, and is low in nutrients","It is mostly made of heavy swamp mud with no oxygen"], answer:2},
+    {q:"Elephants are 'keystone species' in the savanna because they knock down trees. Why is this important?", options:["It makes it easier for humans to build roads","It keeps the ecosystem open as a grassland instead of turning into a forest","It helps predators see their prey from further away","It clears space so rivers can flow faster"], answer:1},
+    {q:"How do many savanna plants protect themselves from drying out during the dry season?", options:["They grow flowers faster to absorb humidity","They drop their leaves and slow down their growth","They widen their leaves to catch more air moisture","They pull their roots completely out of the deep soil"], answer:1},
+    {q:"Many savanna predators have coats matching the color of dry grass. What kind of adaptation is this?", options:["A behavioral adaptation for staying cool","A physiological adaptation to scare away ticks","A structural adaptation used for camouflage while hunting","A chemical adaptation to avoid poisonous plants"], answer:2},
+    {q:"What important job do termites do in the savanna ecosystem?", options:["They hunt small mammals in large packs","They clean up the air by releasing extra nitrogen","They break down dead plant matter and mix nutrients back into the soil","They build dams that create large wetlands"], answer:2},
+    {q:"What term describes the co-existence of trees and grasses competing for resources in the same biome?", options:["Trophic cascade","The savanna paradox","Competitive exclusion principle","Ecological succession"], answer:1},
+    {q:"How does the presence of a hardpan layer in savanna soil affect vegetation?", options:["It allows trees to develop exceptionally deep taproots","It restricts root penetration and impedes water drainage, favoring grasses over deep-rooted trees","It provides a continuous supply of rich organic minerals","It prevents any form of microbial life from surviving"], answer:1},
+    {q:"Which physiological adaptation allows some savanna ungulates to survive without drinking standing water for long periods?", options:["The ability to extract sufficient moisture from the plants and dew they consume","The capacity to store liquid water in specialized throat pouches","An altered metabolic system that eliminates the biological need for hydration","The habit of absorbing humidity directly through their skin"], answer:0},
+    {q:"What is the ecological impact of suppressing all natural fires in a savanna ecosystem?", options:["The grassland expands and suppresses tree growth","The ecosystem shifts toward a woody closed-canopy forest or shrubland","Biodiversity increases rapidly across all trophic levels","Soil nutrient levels double due to lack of ash production"], answer:1},
+    {q:"What role do allelopathic properties play in some savanna plant species?", options:["They attract specific predatory insects for defense","They release chemicals into the soil to inhibit the growth of competing neighboring plants","They accelerate the decomposition of surrounding organic material","They increase the plant's structural resistance to intense heat"], answer:1},
+    {q:"Why do C4 grasses thrive better than C3 plants in the hot, bright savanna environment?", options:["C4 plants require zero sunlight to complete photosynthesis","The C4 photosynthetic pathway is more efficient at high temperatures and uses less water","C4 plants have a unique chemical defense that prevents herbivory entirely","C4 plants do not require nitrogen or phosphorus from the soil"], answer:1},
+    {q:"How does overgrazing by domestic livestock disrupt the natural fire cycle of the savanna?", options:["It causes an increase in local atmospheric moisture","It removes the fine grass fuel needed to carry low-intensity surface fires","It introduces non-flammable minerals into the ecosystem","It forces native plants to produce excess resin"], answer:1},
+    {q:"What is a major microclimatic effect created by isolated canopy trees in a savanna?", options:["They lower soil temperatures and increase moisture directly beneath them, creating resource islands","They strip all remaining nutrients from the surrounding soil layout","They create wind tunnels that increase local evaporation rates","They prevent any grass species from germinating within a fifty-meter radius"], answer:0},
+    {q:"Which factor is primarily responsible for determining the boundary between a savanna and a tropical rainforest?", options:["The specific species of apex predators present","The total annual rainfall and the length of the distinct dry season","The composition of the underlying bedrock","The average elevation above sea level"], answer:1},
+    {q:"What ecological concept is illustrated by different herbivore species feeding on different parts of the same savanna trees?", options:["Mutualistic symbiosis","Resource partitioning","Competitive exclusion","Biomagnification"], answer:1}
+  ]
+};
+
+let activeQuestions = [];
+let current = 0;
+let score = 0;
+let answered = false;
+let selectedLevel = 'easy';
+
+const starsEl = document.getElementById('stars');
+const quizCard = document.getElementById('quizCard');
+const menuView = document.getElementById('menuView');
+const gameView = document.getElementById('gameView');
+const subheading = document.getElementById('subheading');
+
+let qcountEl = document.getElementById('qcount');
+let questionEl = document.getElementById('question');
+let optionsEl = document.getElementById('options');
+let nextBtn = document.getElementById('nextBtn');
+nextBtn.onclick = handleNext;
+
+function startQuiz(level) {
+  selectedLevel = level;
+  activeQuestions = questionPool[level];
+  current = 0;
+  score = 0;
+  
+  subheading.textContent = `${level.charAt(0).toUpperCase() + level.slice(1)} Level · 15 Questions`;
+  
+  menuView.style.display = 'none';
+  gameView.style.display = 'block';
+  starsEl.style.display = 'flex';
+  
+  renderStars();
+  loadQuestion();
+}
+
+function goHome() {
+  starsEl.style.display = 'none';
+  gameView.style.display = 'none';
+  menuView.style.display = 'block';
+  subheading.textContent = "Select a level to start";
+}
+
+function renderStars(){
+  starsEl.innerHTML = '';
+  for(let i=0; i<activeQuestions.length; i++){
+    const s = document.createElementNS("http://www.w3.org/2000/svg","svg");
+    s.setAttribute("viewBox","0 0 24 24");
+    s.setAttribute("fill","currentColor");
+    s.classList.add("star");
+    s.id = "star-"+i;
+    if(i === current) s.classList.add("current");
+    s.innerHTML = '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.27 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z"/>';
+    starsEl.appendChild(s);
+  }
+}
+
+function loadQuestion(){
+  answered = false;
+  nextBtn.classList.remove('show');
+  const item = activeQuestions[current];
+  qcountEl.textContent = `Question ${current+1} of ${activeQuestions.length}`;
+  questionEl.textContent = item.q;
+  optionsEl.innerHTML = '';
+  
+  item.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(idx, btn);
+    optionsEl.appendChild(btn);
+  });
+  
+  document.querySelectorAll('.star').forEach(s => s.classList.remove('current'));
+  const curStar = document.getElementById('star-'+current);
+  if(curStar) curStar.classList.add('current');
+}
+
+function selectAnswer(idx, btn){
+  if(answered) return;
+  answered = true;
+  const item = activeQuestions[current];
+  const correct = idx === item.answer;
+  const star = document.getElementById('star-'+current);
+
+  [...optionsEl.children].forEach((b, i) => {
+    b.disabled = true;
+    if(i === item.answer) b.classList.add('correct');
+    if(i === idx && !correct) b.classList.add('wrong');
+  });
+
+  if(correct){
+    score++;
+    star.classList.add('correct');
+  } else {
+    star.classList.add('wrong');
+  }
+  star.classList.remove('current');
+
+  nextBtn.textContent = current === activeQuestions.length - 1 ? 'See results' : 'Next';
+  nextBtn.classList.add('show');
+}
+
+function handleNext(){
+  if(current < activeQuestions.length - 1){
+    current++;
+    loadQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult(){
+  starsEl.style.display = 'none';
+  gameView.style.display = 'none';
+  
+  const summaryDiv = document.createElement('div');
+  summaryDiv.id = "resultSummaryScreen";
+  summaryDiv.className = "result";
+  summaryDiv.innerHTML = `
+    <h2>${score} / ${activeQuestions.length}</h2>
+    <p>You got ${score} out of ${activeQuestions.length} questions right on ${selectedLevel} mode.</p>
+    <button class="restart-btn" id="restartBtn">Back to Levels</button>
+  `;
+  
+  quizCard.appendChild(summaryDiv);
+  
+  document.getElementById('restartBtn').onclick = () => {
+    document.getElementById('resultSummaryScreen').remove();
+    goHome();
+  };
+}
+</script>
+
+</body>
+</html>
