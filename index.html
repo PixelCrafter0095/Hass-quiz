@@ -157,6 +157,30 @@
     padding-bottom: 6px;
     font-weight: 600;
   }
+  .lb-tier-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+  }
+  .lb-tier-header:hover {
+    color: var(--text);
+  }
+  .lb-tier-chevron {
+    display: inline-block;
+    font-size: 13px;
+    transition: transform 0.15s;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+  .lb-tier-chevron.collapsed {
+    transform: rotate(-90deg);
+  }
+  .leaderboard-list.lb-list-collapsed {
+    display: none;
+  }
   .leaderboard-list {
     display: flex;
     flex-direction: column;
@@ -602,8 +626,7 @@
   .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.25);
-    backdrop-filter: blur(4px);
+    background: transparent;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -973,6 +996,404 @@
   .mute-toggle-btn:active {
     transform: scale(0.93);
   }
+
+  .custom-create-btn {
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    color: #3730a3;
+  }
+  .custom-create-btn:hover {
+    background: #e0e7ff;
+    border-color: #a5b4fc;
+  }
+  .custom-list-btn {
+    background: transparent;
+    border: 1px dashed var(--muted);
+    color: var(--text);
+  }
+  .custom-list-btn:hover {
+    background: var(--hud-bg);
+    border-color: var(--text);
+  }
+
+  .custom-quiz-section {
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 1px dashed var(--border);
+    text-align: left;
+  }
+  .custom-quiz-section-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .custom-quiz-section-desc {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin: 0 0 14px;
+  }
+
+  .save-quiz-topbtn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 7px 14px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .save-quiz-topbtn:hover {
+    background: #333333;
+  }
+
+  .custom-quiz-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .custom-quiz-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: #fafafa;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .custom-quiz-info {
+    cursor: pointer;
+    flex: 1;
+    min-width: 0;
+  }
+  .custom-quiz-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .custom-quiz-meta {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .custom-quiz-edit-btn {
+    background: none;
+    border: 1px dashed var(--text);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-left: 12px;
+    transition: background 0.15s;
+  }
+  .custom-quiz-edit-btn:hover {
+    background: var(--hud-bg);
+  }
+
+  .settings-field {
+    text-align: left;
+    margin-bottom: 16px;
+  }
+  .settings-label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .qs-input {
+    text-align: left;
+    margin-bottom: 0;
+  }
+
+  .editor-layout {
+    display: flex;
+    gap: 28px;
+    margin-top: 12px;
+  }
+  .editor-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    padding-right: 20px;
+  }
+  .editor-q-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 480px;
+    overflow-y: auto;
+    margin-bottom: 14px;
+  }
+  .editor-q-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+    background: #fafafa;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .editor-q-item:hover {
+    background: var(--hud-bg);
+  }
+  .editor-q-item.active {
+    background: #1a1a1a;
+    border-color: #1a1a1a;
+  }
+  .editor-q-item.active .editor-q-num,
+  .editor-q-item.active .editor-q-preview {
+    color: #ffffff;
+  }
+  .editor-q-num {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+  }
+  .editor-q-preview {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.35;
+  }
+  .editor-add-btn {
+    background: none;
+    border: 1px dashed var(--muted);
+    color: var(--text);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .editor-add-btn:hover {
+    background: var(--hud-bg);
+    border-color: var(--text);
+  }
+  .editor-main {
+    flex-grow: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .editor-question-input {
+    width: 100%;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: #fafafa;
+    resize: vertical;
+    min-height: 70px;
+    font-family: inherit;
+    line-height: 1.45;
+    margin-bottom: 20px;
+    color: var(--text);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .editor-question-input:focus {
+    outline: none;
+    border-color: var(--text);
+    background: var(--card);
+  }
+  .editor-answers-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .editor-answer-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: #fafafa;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .editor-answer-row.correct-marked {
+    border-color: var(--green);
+    background: #edf7ed;
+  }
+  .editor-correct-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: #ffffff;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  }
+  .editor-correct-circle:hover {
+    border-color: var(--green);
+    transform: scale(1.08);
+  }
+  .editor-correct-circle.active {
+    background: var(--green);
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px #c8e6c9;
+  }
+  .editor-answer-input {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    font-size: 14.5px;
+    color: var(--text);
+    font-weight: 500;
+    outline: none;
+    font-family: inherit;
+  }
+  .editor-answer-remove-btn {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: #ffffff;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .editor-answer-remove-btn:hover {
+    background: #fdeceb;
+    color: var(--red);
+    border-color: #f8c2c0;
+  }
+  .editor-add-answer-btn {
+    align-self: flex-start;
+    background: none;
+    border: 1px dashed var(--muted);
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    margin-bottom: 20px;
+  }
+  .editor-add-answer-btn:hover {
+    background: var(--hud-bg);
+    border-color: var(--text);
+  }
+  .editor-delete-q-btn {
+    align-self: flex-start;
+    background: none;
+    border: 1px dashed var(--red);
+    color: var(--red);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .editor-delete-q-btn:hover {
+    background: #fdeceb;
+  }
+
+  .editor-image-section {
+    margin-bottom: 18px;
+  }
+  .editor-image-upload-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 28px 16px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    background: #fafafa;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .editor-image-upload-empty:hover {
+    background: var(--hud-bg);
+    border-color: var(--text);
+    color: var(--text);
+  }
+  .editor-image-upload-icon {
+    font-size: 26px;
+  }
+  .editor-image-preview-wrap {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .editor-image-preview {
+    display: block;
+    width: 100%;
+    max-height: 260px;
+    object-fit: cover;
+  }
+  .editor-image-remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.65);
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .editor-image-remove-btn:hover {
+    background: rgba(0,0,0,0.85);
+  }
+
+  .question-image-wrap {
+    width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 18px;
+    border: 1px solid var(--border);
+    background: #fafafa;
+  }
+  .question-image {
+    display: block;
+    width: 100%;
+    max-height: 320px;
+    object-fit: cover;
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -1002,6 +1423,15 @@
             <button class="level-btn fast-mode-btn" onclick="openNamePrompt('fast')">Fast Mode Timer Challenge (15 Questions)</button>
             <button class="level-btn learn-btn" onclick="openStudy()">Learn About the Savanna</button>
           </div>
+
+          <div class="custom-quiz-section">
+            <div class="custom-quiz-section-title">Custom Quizzes</div>
+            <p class="custom-quiz-section-desc">Build your own quiz, or play one you've already made.</p>
+            <div class="level-buttons">
+              <button class="level-btn custom-create-btn" onclick="openCustomEditor()">+ Create Custom Quiz</button>
+              <button class="level-btn custom-list-btn" onclick="openCustomQuizList()">Browse Custom Quizzes</button>
+            </div>
+          </div>
         </div>
 
         <div id="gameView" style="display: none;">
@@ -1016,6 +1446,9 @@
             </div>
             
             <button class="home-btn" onclick="handleHomeClick()">Home</button>
+          </div>
+          <div class="question-image-wrap" id="questionImageWrap" style="display: none;">
+            <img class="question-image" id="questionImage" src="" alt="Question image">
           </div>
           <div class="question" id="question"></div>
           <div class="options" id="options"></div>
@@ -1062,6 +1495,53 @@
           <div class="session-summary-row" id="sdSummaryRow"></div>
 
           <div class="session-log-list" id="sdLogList"></div>
+        </div>
+
+        <div id="customListView" style="display: none;">
+          <div class="top-row">
+            <div class="qcount">Custom Quizzes</div>
+            <div class="hud-stats-group">
+              <button class="home-btn" onclick="openCustomEditor()">+ New Quiz</button>
+              <button class="home-btn" onclick="closeCustomQuizList()">Home</button>
+            </div>
+          </div>
+          <div class="custom-quiz-list" id="customQuizListContainer"></div>
+        </div>
+
+        <div id="customEditorView" style="display: none;">
+          <div class="top-row">
+            <div class="qcount">Custom Quiz Editor</div>
+            <div class="hud-stats-group">
+              <button class="home-btn" onclick="openQuizSettingsModal()">Settings</button>
+              <button class="save-quiz-topbtn" onclick="openSaveQuizModal()">Save Quiz</button>
+              <button class="home-btn" onclick="exitCustomEditor()">Home</button>
+            </div>
+          </div>
+
+          <div class="editor-layout">
+            <div class="editor-sidebar">
+              <div class="editor-q-list" id="editorQList"></div>
+              <button class="editor-add-btn" onclick="addNewEditorQuestion()">+ Add Question</button>
+            </div>
+
+            <div class="editor-main">
+              <div class="editor-image-section" id="editorImageSection">
+                <input type="file" id="editorImageFileInput" accept="image/*" style="display:none;" onchange="handleEditorImageUpload(event)">
+                <div class="editor-image-upload-empty" id="editorImageUploadEmpty" onclick="document.getElementById('editorImageFileInput').click()">
+                  <span class="editor-image-upload-icon">🖼️</span>
+                  <span>Add an image for this question (optional)</span>
+                </div>
+                <div class="editor-image-preview-wrap" id="editorImagePreviewWrap" style="display:none;">
+                  <img class="editor-image-preview" id="editorImagePreview" src="" alt="Question image">
+                  <button class="editor-image-remove-btn" onclick="removeEditorQuestionImage()">Remove Image</button>
+                </div>
+              </div>
+              <textarea class="editor-question-input" id="editorQuestionInput" placeholder="Type your question here..." oninput="syncEditorQuestionText()"></textarea>
+              <div class="editor-answers-grid" id="editorAnswersGrid"></div>
+              <button class="editor-add-answer-btn" id="editorAddAnswerBtn" onclick="addEditorAnswerSlot()">+ Add Answer</button>
+              <button class="editor-delete-q-btn" onclick="deleteCurrentEditorQuestion()">Delete This Question</button>
+            </div>
+          </div>
         </div>
         
       </div>
@@ -1120,6 +1600,49 @@
       <button class="modal-btn-secondary" onclick="closeHomeConfirmModal()">Cancel</button>
       <button class="modal-start-btn" style="background: var(--red);" onclick="executeHomeExit()">Quit Game</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="quizSettingsModal" style="display: none;">
+  <div class="modal-box">
+    <button class="modal-close-btn" onclick="closeQuizSettingsModal()">&times;</button>
+    <h3>Quiz Settings</h3>
+    <p>Configure how this custom quiz plays and scores.</p>
+
+    <div class="settings-field">
+      <label class="settings-label">Mode</label>
+      <div class="filter-row-btn" style="margin-bottom:18px;">
+        <button class="filter-btn" id="qs-mode-normal" onclick="setEditorMode('normal')">Normal</button>
+        <button class="filter-btn" id="qs-mode-fast" onclick="setEditorMode('fast')">Fast Timer</button>
+      </div>
+    </div>
+
+    <div class="settings-field">
+      <label class="settings-label">Base XP per Correct Answer</label>
+      <input type="number" class="modal-input qs-input" id="qs-base-xp" min="0" step="10">
+    </div>
+
+    <div class="settings-field">
+      <label class="settings-label">Streak Bonus XP (per streak level)</label>
+      <input type="number" class="modal-input qs-input" id="qs-streak-xp" min="0" step="10">
+    </div>
+
+    <div class="settings-field" id="qs-timer-field">
+      <label class="settings-label">Timer Seconds per Question</label>
+      <input type="number" class="modal-input qs-input" id="qs-timer-secs" min="3" step="1">
+    </div>
+
+    <button class="modal-start-btn" onclick="applyQuizSettings()">Apply Settings</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="saveQuizModal" style="display: none;">
+  <div class="modal-box">
+    <button class="modal-close-btn" onclick="closeSaveQuizModal()">&times;</button>
+    <h3>Save Quiz</h3>
+    <p>Give your custom quiz a name so you can find it later.</p>
+    <input type="text" class="modal-input" id="saveQuizNameInput" placeholder="Quiz name..." maxlength="40" oninput="toggleSaveQuizBtn()">
+    <button class="modal-start-btn" id="saveQuizConfirmBtn" style="display: none;" onclick="confirmSaveQuiz()">Save Quiz</button>
   </div>
 </div>
 
@@ -1395,6 +1918,7 @@ let sessionSkippedQuestions = [];
 let questionStartTime = 0;
 let isReviewMode = false;
 let soundMuted = localStorage.getItem('savanna_quiz_muted') === 'true';
+let collapsedLeaderboardSections = new Set(JSON.parse(localStorage.getItem('savanna_lb_collapsed') || '[]'));
 
 let categoryMissedCounts = {};
 
@@ -1457,6 +1981,7 @@ function playSound(type) {
 let countdownTimerId = null;
 let secondsRemaining = 0;
 const FAST_MODE_ALLOWED_SECONDS = 15;
+let currentTimerSeconds = FAST_MODE_ALLOWED_SECONDS;
 
 let activeFilterMetric = 'score'; 
 let activeFilterScope = 'level';   
@@ -1465,8 +1990,22 @@ let scoreRegistry = JSON.parse(localStorage.getItem('savanna_quiz_records')) || 
   easy: [],
   medium: [],
   hard: [],
-  fast: []
+  fast: [],
+  custom: {}
 };
+if (!scoreRegistry.custom) scoreRegistry.custom = {};
+
+let customQuizzes = JSON.parse(localStorage.getItem('savanna_custom_quizzes')) || {};
+let editorQuizId = null;
+let editorQuizName = "";
+let editorQuestions = [];
+let editorCurrentIndex = 0;
+let editorSettings = { mode: 'normal', baseXp: 100, streakXp: 50, timerSecs: 15 };
+
+let activeCustomQuizId = null;
+let activeCustomIsFast = false;
+let activeCustomBaseXp = 100;
+let activeCustomStreakXp = 50;
 
 const quizContainer = document.getElementById('quizContainer');
 const starsEl = document.getElementById('stars');
@@ -1475,6 +2014,8 @@ const menuView = document.getElementById('menuView');
 const gameView = document.getElementById('gameView');
 const studyView = document.getElementById('studyView');
 const sessionDetailView = document.getElementById('sessionDetailView');
+const customListView = document.getElementById('customListView');
+const customEditorView = document.getElementById('customEditorView');
 const subheading = document.getElementById('subheading');
 const leaderboardSection = document.getElementById('leaderboardSection');
 
@@ -1604,7 +2145,7 @@ function toggleClearEnterBtn() {
 function executeClearLeaderboard() {
   if (clearSecretInput.value !== "sande") return;
   
-  scoreRegistry = { easy: [], medium: [], hard: [], fast: [] };
+  scoreRegistry = { easy: [], medium: [], hard: [], fast: [], custom: {} };
   localStorage.setItem('savanna_quiz_records', JSON.stringify(scoreRegistry));
   
   closeClearLeaderboardPrompt();
@@ -1644,27 +2185,105 @@ function renderLeaderboardStarRow(historyArray) {
   return html;
 }
 
+function getLeaderboardSortFn() {
+  if (activeFilterMetric === 'score') {
+    return (a, b) => b.score - a.score || b.xp - a.xp;
+  } else {
+    return (a, b) => b.xp - a.xp || b.score - a.score;
+  }
+}
+
+function toggleLeaderboardSection(key) {
+  if (collapsedLeaderboardSections.has(key)) {
+    collapsedLeaderboardSections.delete(key);
+  } else {
+    collapsedLeaderboardSections.add(key);
+  }
+  localStorage.setItem('savanna_lb_collapsed', JSON.stringify([...collapsedLeaderboardSections]));
+  refreshLeaderboards();
+}
+
+function buildCollapsibleTierHeader(key, titleText, extraStyle) {
+  const isCollapsed = collapsedLeaderboardSections.has(key);
+  const header = document.createElement('h4');
+  header.className = 'lb-tier-header';
+  if (extraStyle) header.style.cssText += extraStyle;
+  header.innerHTML = `<span>${titleText}</span><span class="lb-tier-chevron${isCollapsed ? ' collapsed' : ''}">▾</span>`;
+  header.onclick = () => toggleLeaderboardSection(key);
+  return { header, isCollapsed };
+}
+
+function renderCustomQuizLeaderboards(container) {
+  const quizIds = Object.keys(customQuizzes);
+  if (quizIds.length === 0) return;
+
+  const sortFn = getLeaderboardSortFn();
+
+  const heading = document.createElement('div');
+  heading.className = 'leaderboard-tier';
+  heading.innerHTML = `<h4>CUSTOM QUIZZES</h4>`;
+  container.appendChild(heading);
+
+  quizIds.forEach(qid => {
+    const quiz = customQuizzes[qid];
+    const key = 'custom_' + qid;
+    const tierDiv = document.createElement('div');
+    tierDiv.className = 'leaderboard-tier';
+
+    const { header, isCollapsed } = buildCollapsibleTierHeader(key, escapeHtml(quiz.name), 'border-bottom-style:solid;');
+    tierDiv.appendChild(header);
+
+    const listDiv = document.createElement('div');
+    listDiv.className = 'leaderboard-list' + (isCollapsed ? ' lb-list-collapsed' : '');
+
+    const entries = (scoreRegistry.custom && scoreRegistry.custom[qid]) || [];
+    const sorted = [...entries].sort(sortFn);
+
+    if (sorted.length === 0) {
+      listDiv.innerHTML = '<div class="no-scores">No placements recorded</div>';
+    } else {
+      sorted.forEach((entry, idx) => {
+        const item = document.createElement('div');
+        item.className = 'leaderboard-item clickable';
+        item.innerHTML = `
+          <div class="lb-left">
+            <div class="lb-name-row">
+              <span class="lb-rank">${idx + 1}.</span>
+              <span class="lb-name">${escapeHtml(entry.name)}</span>
+            </div>
+            ${renderLeaderboardStarRow(entry.stars)}
+          </div>
+          <div class="lb-right">
+            <div>${entry.score}/${entry.totalQuestions || quiz.questions.length}</div>
+            <div class="lb-xp">${entry.xp} XP</div>
+          </div>
+        `;
+        item.addEventListener('click', () => openSessionDetail(entry, 'custom'));
+        listDiv.appendChild(item);
+      });
+    }
+    tierDiv.appendChild(listDiv);
+    container.appendChild(tierDiv);
+  });
+}
+
 function refreshLeaderboards() {
   const container = document.getElementById('lb-content-container');
   container.innerHTML = '';
 
-  const sortFn = (a, b) => {
-    if (activeFilterMetric === 'score') {
-      return b.score - a.score || b.xp - a.xp;
-    } else {
-      return b.xp - a.xp || b.score - a.score;
-    }
-  };
+  const sortFn = getLeaderboardSortFn();
 
   if (activeFilterScope === 'level') {
     ['easy', 'medium', 'hard', 'fast'].forEach(tier => {
       const tierDiv = document.createElement('div');
       tierDiv.className = 'leaderboard-tier';
       let titleDisplay = tier === 'fast' ? "FAST MODE" : `${tier.toUpperCase()} LEVEL`;
-      tierDiv.innerHTML = `<h4>${titleDisplay}</h4>`;
+
+      const { header, isCollapsed } = buildCollapsibleTierHeader(tier, titleDisplay);
+      tierDiv.appendChild(header);
       
       const listDiv = document.createElement('div');
-      listDiv.className = 'leaderboard-list';
+      listDiv.className = 'leaderboard-list' + (isCollapsed ? ' lb-list-collapsed' : '');
       
       const sorted = [...(scoreRegistry[tier] || [])].sort(sortFn);
       
@@ -1694,13 +2313,16 @@ function refreshLeaderboards() {
       tierDiv.appendChild(listDiv);
       container.appendChild(tierDiv);
     });
+    renderCustomQuizLeaderboards(container);
   } else {
     const totalDiv = document.createElement('div');
     totalDiv.className = 'leaderboard-tier';
-    totalDiv.innerHTML = `<h4>ALL TIERS COMBINED</h4>`;
+
+    const { header, isCollapsed } = buildCollapsibleTierHeader('combined', 'ALL TIERS COMBINED');
+    totalDiv.appendChild(header);
     
     const listDiv = document.createElement('div');
-    listDiv.className = 'leaderboard-list';
+    listDiv.className = 'leaderboard-list' + (isCollapsed ? ' lb-list-collapsed' : '');
     
     let combined = [];
     ['easy', 'medium', 'hard', 'fast'].forEach(tier => {
@@ -1738,7 +2360,374 @@ function refreshLeaderboards() {
     }
     totalDiv.appendChild(listDiv);
     container.appendChild(totalDiv);
+    renderCustomQuizLeaderboards(container);
   }
+}
+
+/* ---------- Custom Quiz Editor ---------- */
+
+function createBlankEditorQuestion() {
+  return { q: '', options: ['', '', '', ''], answer: 0, imageData: null };
+}
+
+const MIN_EDITOR_ANSWERS = 2;
+const MAX_EDITOR_ANSWERS = 4;
+
+function openCustomEditor(existingId) {
+  playSound('click');
+  if (existingId && customQuizzes[existingId]) {
+    const quiz = customQuizzes[existingId];
+    editorQuizId = quiz.id;
+    editorQuizName = quiz.name;
+    editorSettings = {
+      mode: quiz.mode || 'normal',
+      baseXp: quiz.baseXp != null ? quiz.baseXp : 100,
+      streakXp: quiz.streakXp != null ? quiz.streakXp : 50,
+      timerSecs: quiz.timerSecs != null ? quiz.timerSecs : 15
+    };
+    editorQuestions = JSON.parse(JSON.stringify(quiz.questions));
+  } else {
+    editorQuizId = null;
+    editorQuizName = "";
+    editorSettings = { mode: 'normal', baseXp: 100, streakXp: 50, timerSecs: 15 };
+    editorQuestions = [createBlankEditorQuestion()];
+  }
+  editorCurrentIndex = 0;
+
+  menuView.style.display = 'none';
+  gameView.style.display = 'none';
+  studyView.style.display = 'none';
+  sessionDetailView.style.display = 'none';
+  customListView.style.display = 'none';
+  starsEl.style.display = 'none';
+  leaderboardSection.style.display = 'none';
+  customEditorView.style.display = 'block';
+  quizContainer.classList.add('expanded');
+  subheading.textContent = "Design your own quiz";
+
+  renderEditorQuestionList();
+  loadEditorQuestionIntoUI();
+}
+
+function exitCustomEditor() {
+  customEditorView.style.display = 'none';
+  quizContainer.classList.remove('expanded');
+  goHome();
+}
+
+function renderEditorQuestionList() {
+  const listEl = document.getElementById('editorQList');
+  listEl.innerHTML = '';
+  editorQuestions.forEach((q, i) => {
+    const item = document.createElement('button');
+    item.className = 'editor-q-item' + (i === editorCurrentIndex ? ' active' : '');
+    const preview = q.q.trim() ? (q.q.length > 40 ? q.q.slice(0, 40) + '…' : q.q) : 'New question — tap to edit';
+    item.innerHTML = `<span class="editor-q-num">Question ${i + 1}</span><span class="editor-q-preview">${escapeHtml(preview)}</span>`;
+    item.onclick = () => selectEditorQuestion(i);
+    listEl.appendChild(item);
+  });
+}
+
+function selectEditorQuestion(i) {
+  editorCurrentIndex = i;
+  renderEditorQuestionList();
+  loadEditorQuestionIntoUI();
+}
+
+function loadEditorQuestionIntoUI() {
+  const q = editorQuestions[editorCurrentIndex];
+  document.getElementById('editorQuestionInput').value = q.q;
+  renderEditorAnswersGrid();
+  renderEditorImageUI();
+}
+
+function renderEditorImageUI() {
+  const q = editorQuestions[editorCurrentIndex];
+  const emptyEl = document.getElementById('editorImageUploadEmpty');
+  const previewWrap = document.getElementById('editorImagePreviewWrap');
+  const previewImg = document.getElementById('editorImagePreview');
+  if (q.imageData) {
+    emptyEl.style.display = 'none';
+    previewWrap.style.display = 'block';
+    previewImg.src = q.imageData;
+  } else {
+    emptyEl.style.display = 'flex';
+    previewWrap.style.display = 'none';
+    previewImg.src = '';
+  }
+}
+
+function handleEditorImageUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    alert('Please choose an image file.');
+    event.target.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    editorQuestions[editorCurrentIndex].imageData = reader.result;
+    renderEditorImageUI();
+    playSound('click');
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function removeEditorQuestionImage() {
+  editorQuestions[editorCurrentIndex].imageData = null;
+  renderEditorImageUI();
+}
+
+function renderEditorAnswersGrid() {
+  const grid = document.getElementById('editorAnswersGrid');
+  grid.innerHTML = '';
+  const q = editorQuestions[editorCurrentIndex];
+  q.options.forEach((opt, idx) => {
+    const row = document.createElement('div');
+    row.className = 'editor-answer-row' + (idx === q.answer ? ' correct-marked' : '');
+
+    const circleBtn = document.createElement('button');
+    circleBtn.className = 'editor-correct-circle' + (idx === q.answer ? ' active' : '');
+    circleBtn.title = 'Mark as correct answer';
+    circleBtn.onclick = () => {
+      editorQuestions[editorCurrentIndex].answer = idx;
+      renderEditorAnswersGrid();
+      playSound('click');
+    };
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'editor-answer-input';
+    input.placeholder = `Answer ${idx + 1}`;
+    input.value = opt;
+    input.oninput = () => {
+      editorQuestions[editorCurrentIndex].options[idx] = input.value;
+      renderEditorQuestionList();
+    };
+
+    row.appendChild(circleBtn);
+    row.appendChild(input);
+
+    if (q.options.length > MIN_EDITOR_ANSWERS) {
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'editor-answer-remove-btn';
+      removeBtn.title = 'Remove this answer';
+      removeBtn.textContent = '✕';
+      removeBtn.onclick = () => removeEditorAnswerSlot(idx);
+      row.appendChild(removeBtn);
+    }
+
+    grid.appendChild(row);
+  });
+
+  const addBtn = document.getElementById('editorAddAnswerBtn');
+  addBtn.style.display = q.options.length < MAX_EDITOR_ANSWERS ? 'block' : 'none';
+}
+
+function addEditorAnswerSlot() {
+  const q = editorQuestions[editorCurrentIndex];
+  if (q.options.length >= MAX_EDITOR_ANSWERS) return;
+  q.options.push('');
+  renderEditorAnswersGrid();
+  playSound('click');
+}
+
+function removeEditorAnswerSlot(idx) {
+  const q = editorQuestions[editorCurrentIndex];
+  if (q.options.length <= MIN_EDITOR_ANSWERS) return;
+  q.options.splice(idx, 1);
+  if (q.answer === idx) {
+    q.answer = 0;
+  } else if (q.answer > idx) {
+    q.answer -= 1;
+  }
+  renderEditorAnswersGrid();
+  renderEditorQuestionList();
+}
+
+function syncEditorQuestionText() {
+  editorQuestions[editorCurrentIndex].q = document.getElementById('editorQuestionInput').value;
+  renderEditorQuestionList();
+}
+
+function addNewEditorQuestion() {
+  editorQuestions.push(createBlankEditorQuestion());
+  editorCurrentIndex = editorQuestions.length - 1;
+  renderEditorQuestionList();
+  loadEditorQuestionIntoUI();
+  playSound('click');
+}
+
+function deleteCurrentEditorQuestion() {
+  if (editorQuestions.length <= 1) {
+    alert('A quiz needs at least one question.');
+    return;
+  }
+  editorQuestions.splice(editorCurrentIndex, 1);
+  editorCurrentIndex = Math.max(0, editorCurrentIndex - 1);
+  renderEditorQuestionList();
+  loadEditorQuestionIntoUI();
+}
+
+/* ---------- Custom Quiz Settings Modal ---------- */
+
+function openQuizSettingsModal() {
+  document.getElementById('qs-base-xp').value = editorSettings.baseXp;
+  document.getElementById('qs-streak-xp').value = editorSettings.streakXp;
+  document.getElementById('qs-timer-secs').value = editorSettings.timerSecs;
+  updateQuizSettingsModeUI();
+  document.getElementById('quizSettingsModal').style.display = 'flex';
+}
+
+function closeQuizSettingsModal() {
+  applyQuizSettings(true);
+  document.getElementById('quizSettingsModal').style.display = 'none';
+}
+
+function setEditorMode(mode) {
+  editorSettings.mode = mode;
+  updateQuizSettingsModeUI();
+}
+
+function updateQuizSettingsModeUI() {
+  document.getElementById('qs-mode-normal').classList.toggle('active', editorSettings.mode === 'normal');
+  document.getElementById('qs-mode-fast').classList.toggle('active', editorSettings.mode === 'fast');
+  document.getElementById('qs-timer-field').style.display = editorSettings.mode === 'fast' ? 'block' : 'none';
+}
+
+function applyQuizSettings(silent) {
+  editorSettings.baseXp = parseInt(document.getElementById('qs-base-xp').value, 10) || 0;
+  editorSettings.streakXp = parseInt(document.getElementById('qs-streak-xp').value, 10) || 0;
+  editorSettings.timerSecs = parseInt(document.getElementById('qs-timer-secs').value, 10) || 15;
+  if (!silent) {
+    document.getElementById('quizSettingsModal').style.display = 'none';
+    playSound('click');
+  }
+}
+
+/* ---------- Save Quiz Modal ---------- */
+
+function validateEditorQuizForSave() {
+  for (let i = 0; i < editorQuestions.length; i++) {
+    const q = editorQuestions[i];
+    if (!q.q.trim()) return `Question ${i + 1} needs some question text before you can save.`;
+    if (q.options.length < MIN_EDITOR_ANSWERS) return `Question ${i + 1} needs at least ${MIN_EDITOR_ANSWERS} answers.`;
+    for (let j = 0; j < q.options.length; j++) {
+      if (!q.options[j] || !q.options[j].trim()) return `Question ${i + 1}, Answer ${j + 1} is empty. Fill in all the answers.`;
+    }
+  }
+  return null;
+}
+
+function openSaveQuizModal() {
+  const err = validateEditorQuizForSave();
+  if (err) {
+    alert(err);
+    return;
+  }
+  document.getElementById('saveQuizNameInput').value = editorQuizName || '';
+  toggleSaveQuizBtn();
+  document.getElementById('saveQuizModal').style.display = 'flex';
+  document.getElementById('saveQuizNameInput').focus();
+}
+
+function closeSaveQuizModal() {
+  document.getElementById('saveQuizModal').style.display = 'none';
+}
+
+function toggleSaveQuizBtn() {
+  const val = document.getElementById('saveQuizNameInput').value.trim();
+  document.getElementById('saveQuizConfirmBtn').style.display = val.length > 0 ? 'block' : 'none';
+}
+
+function confirmSaveQuiz() {
+  const name = document.getElementById('saveQuizNameInput').value.trim();
+  if (!name) return;
+  editorQuizName = name;
+
+  const id = editorQuizId || ('custom_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8));
+  customQuizzes[id] = {
+    id: id,
+    name: name,
+    mode: editorSettings.mode,
+    baseXp: editorSettings.baseXp,
+    streakXp: editorSettings.streakXp,
+    timerSecs: editorSettings.timerSecs,
+    questions: JSON.parse(JSON.stringify(editorQuestions))
+  };
+  editorQuizId = id;
+  localStorage.setItem('savanna_custom_quizzes', JSON.stringify(customQuizzes));
+
+  closeSaveQuizModal();
+  playSound('correct');
+
+  customEditorView.style.display = 'none';
+  quizContainer.classList.remove('expanded');
+  openCustomQuizList();
+}
+
+/* ---------- Custom Quiz List ---------- */
+
+function openCustomQuizList() {
+  playSound('click');
+  menuView.style.display = 'none';
+  gameView.style.display = 'none';
+  studyView.style.display = 'none';
+  sessionDetailView.style.display = 'none';
+  customEditorView.style.display = 'none';
+  starsEl.style.display = 'none';
+  leaderboardSection.style.display = 'none';
+  customListView.style.display = 'block';
+  quizContainer.classList.remove('expanded');
+  subheading.textContent = "Your Custom Quizzes";
+  renderCustomQuizList();
+}
+
+function closeCustomQuizList() {
+  customListView.style.display = 'none';
+  goHome();
+}
+
+function renderCustomQuizList() {
+  const container = document.getElementById('customQuizListContainer');
+  container.innerHTML = '';
+  const quizArr = Object.values(customQuizzes);
+  if (quizArr.length === 0) {
+    container.innerHTML = '<div class="no-scores" style="text-align:center; padding: 30px 0;">No custom quizzes yet. Create one from the home screen!</div>';
+    return;
+  }
+  quizArr.forEach(quiz => {
+    const item = document.createElement('div');
+    item.className = 'custom-quiz-item';
+    const modeLabel = quiz.mode === 'fast' ? 'Fast Timer Challenge' : 'Normal Mode';
+    item.innerHTML = `
+      <div class="custom-quiz-info">
+        <div class="custom-quiz-name">${escapeHtml(quiz.name)}</div>
+        <div class="custom-quiz-meta">${quiz.questions.length} Question${quiz.questions.length === 1 ? '' : 's'} · ${modeLabel} · ${quiz.baseXp} XP / Correct</div>
+      </div>
+      <button class="custom-quiz-edit-btn">Edit</button>
+    `;
+    item.querySelector('.custom-quiz-info').onclick = () => playCustomQuiz(quiz.id);
+    item.querySelector('.custom-quiz-edit-btn').onclick = (e) => {
+      e.stopPropagation();
+      openCustomEditor(quiz.id);
+    };
+    container.appendChild(item);
+  });
+}
+
+function playCustomQuiz(quizId) {
+  const quiz = customQuizzes[quizId];
+  if (!quiz) return;
+  activeCustomQuizId = quizId;
+  selectedLevel = 'custom';
+  modalLevelSubtitle.textContent = `Custom Quiz: ${quiz.name} · ${quiz.questions.length} Questions`;
+  playerNameInput.value = "";
+  modalStartBtn.style.display = "none";
+  nameModal.style.display = "flex";
+  playerNameInput.focus();
 }
 
 function openNamePrompt(level) {
@@ -1769,18 +2758,25 @@ function toggleModalStartBtn() {
 function submitNameAndStart() {
   activePlayerName = playerNameInput.value.trim() || "Explorer";
   nameModal.style.display = "none";
-  startQuiz(selectedLevel);
+  if (selectedLevel === 'custom' && activeCustomQuizId) {
+    startCustomQuiz(activeCustomQuizId);
+  } else {
+    startQuiz(selectedLevel);
+  }
 }
 
 function startQuiz(level) {
   isReviewMode = false;
+  activeCustomQuizId = null;
+  activeCustomIsFast = false;
   if(level === 'fast') {
     let poolCopy = [...questionPool.medium];
     poolCopy.sort(() => 0.5 - Math.random());
     activeQuestions = poolCopy.slice(0, 15);
     subheading.textContent = `Fast Mode Challenge`;
     hudTimer.style.display = "block";
-    hudTimer.textContent = `${FAST_MODE_ALLOWED_SECONDS}s`;
+    currentTimerSeconds = FAST_MODE_ALLOWED_SECONDS;
+    hudTimer.textContent = `${currentTimerSeconds}s`;
   } else {
     activeQuestions = questionPool[level];
     subheading.textContent = `${level.charAt(0).toUpperCase() + level.slice(1)} Level`;
@@ -1813,6 +2809,8 @@ function startQuiz(level) {
   
   menuView.style.display = 'none';
   studyView.style.display = 'none';
+  customListView.style.display = 'none';
+  customEditorView.style.display = 'none';
   gameView.style.display = 'block';
   starsEl.style.display = 'flex';
   leaderboardSection.style.display = 'none';
@@ -1822,10 +2820,73 @@ function startQuiz(level) {
   loadQuestion();
 }
 
+function startCustomQuiz(quizId) {
+  const quiz = customQuizzes[quizId];
+  if (!quiz) { goHome(); return; }
+
+  isReviewMode = false;
+  activeCustomQuizId = quizId;
+  selectedLevel = 'custom';
+  activeCustomIsFast = quiz.mode === 'fast';
+  activeCustomBaseXp = quiz.baseXp != null ? quiz.baseXp : 100;
+  activeCustomStreakXp = quiz.streakXp != null ? quiz.streakXp : 50;
+  currentTimerSeconds = quiz.timerSecs != null ? quiz.timerSecs : 15;
+
+  activeQuestions = quiz.questions.map(q => ({
+    q: q.q,
+    options: q.options,
+    answer: q.answer,
+    category: quiz.name,
+    explanation: '',
+    imageData: q.imageData || null
+  }));
+
+  current = 0;
+  score = 0;
+  baseXpEarned = 0;
+  streakBonusXpEarned = 0;
+  currentXp = 0;
+  currentStreak = 0;
+  maxMultiplierAchieved = 1.0;
+  matchHistoryStars = [];
+  sessionQuestionLog = [];
+  sessionSkippedQuestions = [];
+  playSound('start');
+
+  categoryMissedCounts = {};
+  categoryMissedCounts[quiz.name] = 0;
+
+  isGameInProgress = true;
+
+  subheading.textContent = quiz.name;
+  hudTimer.style.display = activeCustomIsFast ? "block" : "none";
+  if (activeCustomIsFast) hudTimer.textContent = `${currentTimerSeconds}s`;
+
+  updateHudDisplay();
+
+  menuView.style.display = 'none';
+  studyView.style.display = 'none';
+  sessionDetailView.style.display = 'none';
+  customListView.style.display = 'none';
+  customEditorView.style.display = 'none';
+  gameView.style.display = 'block';
+  starsEl.style.display = 'flex';
+  leaderboardSection.style.display = 'none';
+  quizContainer.classList.remove('expanded');
+
+  renderStars();
+  loadQuestion();
+}
+
 function updateHudDisplay() {
   hudXp.textContent = `${currentXp} XP`;
   hudStreak.textContent = `Streak: ${currentStreak}`;
-  let multiplierStep = selectedLevel === 'fast' ? 1.0 : 0.5;
+  let multiplierStep;
+  if (selectedLevel === 'custom') {
+    multiplierStep = activeCustomBaseXp > 0 ? (activeCustomStreakXp / activeCustomBaseXp) : 0.5;
+  } else {
+    multiplierStep = selectedLevel === 'fast' ? 1.0 : 0.5;
+  }
   let currentMultValue = 1.0 + (currentStreak * multiplierStep);
   if(currentMultValue > maxMultiplierAchieved) {
     maxMultiplierAchieved = currentMultValue;
@@ -1922,7 +2983,9 @@ function openSessionDetail(entry, tier) {
   sessionDetailView.style.display = 'block';
   quizContainer.classList.add('expanded');
 
-  const tierLabel = tier === 'fast' ? 'Fast Mode' : (tier ? `${tier.charAt(0).toUpperCase() + tier.slice(1)} Level` : 'Quiz');
+  const tierLabel = tier === 'custom'
+    ? (entry.quizName || (customQuizzes[entry.quizId] ? customQuizzes[entry.quizId].name : 'Custom Quiz'))
+    : (tier === 'fast' ? 'Fast Mode' : (tier ? `${tier.charAt(0).toUpperCase() + tier.slice(1)} Level` : 'Quiz'));
   subheading.textContent = "Player Session Review";
 
   document.getElementById('sdName').textContent = entry.name;
@@ -2000,6 +3063,8 @@ function goHome() {
   gameView.style.display = 'none';
   studyView.style.display = 'none';
   sessionDetailView.style.display = 'none';
+  customListView.style.display = 'none';
+  customEditorView.style.display = 'none';
   menuView.style.display = 'block';
   leaderboardSection.style.display = 'flex';
   subheading.textContent = "Select a level to start";
@@ -2023,8 +3088,9 @@ function renderStars(){
 function loadQuestion(){
   answered = false;
   clearInterval(countdownTimerId);
-  
-  skipBtn.style.display = selectedLevel === 'fast' ? 'none' : 'block';
+
+  const isTimedMode = selectedLevel === 'fast' || (selectedLevel === 'custom' && activeCustomIsFast);
+  skipBtn.style.display = isTimedMode ? 'none' : 'block';
   nextBtn.style.display = 'none';
 
   document.getElementById('explanationBox').style.display = 'none';
@@ -2035,6 +3101,16 @@ function loadQuestion(){
   qcountEl.textContent = `Question ${current+1} of ${activeQuestions.length}`;
   questionEl.textContent = item.q;
   optionsEl.innerHTML = '';
+
+  const imgWrap = document.getElementById('questionImageWrap');
+  const imgEl = document.getElementById('questionImage');
+  if (item.imageData) {
+    imgEl.src = item.imageData;
+    imgWrap.style.display = 'block';
+  } else {
+    imgEl.src = '';
+    imgWrap.style.display = 'none';
+  }
   
   item.options.forEach((opt, idx) => {
     const btn = document.createElement('button');
@@ -2048,8 +3124,8 @@ function loadQuestion(){
   const curStar = document.getElementById('star-'+current);
   if(curStar) curStar.classList.add('current');
 
-  if(selectedLevel === 'fast') {
-    secondsRemaining = FAST_MODE_ALLOWED_SECONDS;
+  if(isTimedMode) {
+    secondsRemaining = currentTimerSeconds;
     hudTimer.textContent = `${secondsRemaining}s`;
     countdownTimerId = setInterval(handleFastTimerTick, 1000);
   }
@@ -2092,8 +3168,10 @@ function handleTimeOut() {
   });
 
   const expBox = document.getElementById('explanationBox');
-  expBox.innerHTML = `<strong>Explanation</strong> ${item.explanation || ''}`;
-  expBox.style.display = 'block';
+  if (item.explanation) {
+    expBox.innerHTML = `<strong>Explanation</strong> ${item.explanation}`;
+    expBox.style.display = 'block';
+  }
 
   playSound('timeout');
 
@@ -2144,8 +3222,14 @@ function selectAnswer(idx, btn){
     currentStreak++;
     matchHistoryStars.push('correct');
     
-    let baseAmount = selectedLevel === 'fast' ? 200 : 100;
-    let streakIncrement = selectedLevel === 'fast' ? 100 : 50;
+    let baseAmount, streakIncrement;
+    if (selectedLevel === 'custom') {
+      baseAmount = activeCustomBaseXp;
+      streakIncrement = activeCustomStreakXp;
+    } else {
+      baseAmount = selectedLevel === 'fast' ? 200 : 100;
+      streakIncrement = selectedLevel === 'fast' ? 100 : 50;
+    }
     
     baseXpEarned += baseAmount;
     let addedStreakBonus = (currentStreak - 1) * streakIncrement;
@@ -2160,7 +3244,7 @@ function selectAnswer(idx, btn){
     optionsEl.appendChild(fxBadge);
     playSound('correct');
 
-    if(selectedLevel === 'fast') {
+    if(selectedLevel === 'fast' || (selectedLevel === 'custom' && activeCustomIsFast)) {
       let bonusBadge = document.createElement('div');
       bonusBadge.style.cssText = "position:absolute;color:var(--green);font-size:11px;top:-18px;right:0;font-weight:700;";
       bonusBadge.textContent = "+2s Time Ext";
@@ -2184,8 +3268,10 @@ function selectAnswer(idx, btn){
     matchHistoryStars.push('wrong');
     
     const expBox = document.getElementById('explanationBox');
-    expBox.innerHTML = `<strong>Explanation</strong> ${item.explanation || ''}`;
-    expBox.style.display = 'block';
+    if (item.explanation) {
+      expBox.innerHTML = `<strong>Explanation</strong> ${item.explanation}`;
+      expBox.style.display = 'block';
+    }
 
     playSound('wrong');
 
@@ -2214,7 +3300,7 @@ function selectAnswer(idx, btn){
 }
 
 function skipQuestion() {
-  if(answered || selectedLevel === 'fast') return;
+  if(answered || selectedLevel === 'fast' || (selectedLevel === 'custom' && activeCustomIsFast)) return;
   answered = true;
   
   skipBtn.style.display = 'none';
@@ -2282,19 +3368,36 @@ function showResult() {
     return;
   }
   
-  if(!scoreRegistry[selectedLevel]) {
-    scoreRegistry[selectedLevel] = [];
+  if (selectedLevel === 'custom' && activeCustomQuizId) {
+    if (!scoreRegistry.custom) scoreRegistry.custom = {};
+    if (!scoreRegistry.custom[activeCustomQuizId]) scoreRegistry.custom[activeCustomQuizId] = [];
+    const quizRef = customQuizzes[activeCustomQuizId];
+    scoreRegistry.custom[activeCustomQuizId].push({
+      name: activePlayerName,
+      score: score,
+      xp: currentXp,
+      stars: [...matchHistoryStars],
+      totalQuestions: activeQuestions.length,
+      level: 'custom',
+      quizId: activeCustomQuizId,
+      quizName: quizRef ? quizRef.name : 'Custom Quiz',
+      log: [...sessionQuestionLog]
+    });
+  } else {
+    if(!scoreRegistry[selectedLevel]) {
+      scoreRegistry[selectedLevel] = [];
+    }
+    
+    scoreRegistry[selectedLevel].push({
+      name: activePlayerName,
+      score: score,
+      xp: currentXp,
+      stars: [...matchHistoryStars],
+      totalQuestions: activeQuestions.length,
+      level: selectedLevel,
+      log: [...sessionQuestionLog]
+    });
   }
-  
-  scoreRegistry[selectedLevel].push({
-    name: activePlayerName,
-    score: score,
-    xp: currentXp,
-    stars: [...matchHistoryStars],
-    totalQuestions: activeQuestions.length,
-    level: selectedLevel,
-    log: [...sessionQuestionLog]
-  });
   localStorage.setItem('savanna_quiz_records', JSON.stringify(scoreRegistry));
   
   let worstCategory = "None";
@@ -2307,7 +3410,23 @@ function showResult() {
   }
 
   let weaknessActionHtml = "";
-  if(maxMisses > 0 && worstCategory !== "None") {
+  if (selectedLevel === 'custom') {
+    if (maxMisses > 0 && worstCategory !== "None") {
+      weaknessActionHtml = `
+        <div class="weakness-card">
+          <div class="weakness-title">Missed Questions</div>
+          <div class="weakness-desc">You missed or skipped ${maxMisses} question(s) in this quiz. Try again to sharpen your score.</div>
+        </div>
+      `;
+    } else {
+      weaknessActionHtml = `
+        <div class="weakness-card">
+          <div class="weakness-title">Flawless Comprehension!</div>
+          <div class="weakness-desc">You answered every question correctly. Well handled!</div>
+        </div>
+      `;
+    }
+  } else if(maxMisses > 0 && worstCategory !== "None") {
     weaknessActionHtml = `
       <div class="weakness-card">
         <div class="weakness-title">Focus Area: ${worstCategory}</div>
