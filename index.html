@@ -1396,6 +1396,7 @@
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -1986,16 +1987,79 @@ let currentTimerSeconds = FAST_MODE_ALLOWED_SECONDS;
 let activeFilterMetric = 'score'; 
 let activeFilterScope = 'level';   
 
-let scoreRegistry = JSON.parse(localStorage.getItem('savanna_quiz_records')) || {
+// --- Supabase setup (global backend) ---
+const SUPABASE_URL = 'https://lzixojxzkxkbpmznbctb.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6aXhvanh6a3hrYnBtem5iY3RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxNTc5ODIsImV4cCI6MjA5ODczMzk4Mn0.2up7zyS5OmPsq5nmaiyqIjkaBVawWxmD00psgd4-3z4';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let scoreRegistry = {
   easy: [],
   medium: [],
   hard: [],
   fast: [],
   custom: {}
 };
-if (!scoreRegistry.custom) scoreRegistry.custom = {};
 
-let customQuizzes = JSON.parse(localStorage.getItem('savanna_custom_quizzes')) || {};
+let customQuizzes = {};
+
+// Convert a Supabase `scores` row back into the shape the rest of the app expects
+function scoreRowToEntry(row) {
+  return {
+    name: row.name,
+    score: row.score,
+    xp: row.xp,
+    stars: row.stars,
+    totalQuestions: row.total_questions,
+    level: row.level,
+    quizId: row.quiz_id || undefined,
+    quizName: row.quiz_name || undefined,
+    log: row.log
+  };
+}
+
+// Convert a Supabase `custom_quizzes` row back into the shape the rest of the app expects
+function quizRowToEntry(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    mode: row.mode,
+    baseXp: row.base_xp,
+    streakXp: row.streak_xp,
+    timerSecs: row.timer_secs,
+    questions: row.questions
+  };
+}
+
+async function loadAllDataFromSupabase() {
+  try {
+    const { data: scoreRows, error: scoreErr } = await sb.from('scores').select('*');
+    if (scoreErr) throw scoreErr;
+
+    scoreRegistry = { easy: [], medium: [], hard: [], fast: [], custom: {} };
+    (scoreRows || []).forEach(row => {
+      const entry = scoreRowToEntry(row);
+      if (row.level === 'custom') {
+        if (!scoreRegistry.custom[row.quiz_id]) scoreRegistry.custom[row.quiz_id] = [];
+        scoreRegistry.custom[row.quiz_id].push(entry);
+      } else {
+        if (!scoreRegistry[row.level]) scoreRegistry[row.level] = [];
+        scoreRegistry[row.level].push(entry);
+      }
+    });
+
+    const { data: quizRows, error: quizErr } = await sb.from('custom_quizzes').select('*');
+    if (quizErr) throw quizErr;
+
+    customQuizzes = {};
+    (quizRows || []).forEach(row => {
+      customQuizzes[row.id] = quizRowToEntry(row);
+    });
+
+    if (typeof refreshLeaderboards === 'function') refreshLeaderboards();
+  } catch (err) {
+    console.error('Failed to load data from Supabase:', err);
+  }
+}
 let editorQuizId = null;
 let editorQuizName = "";
 let editorQuestions = [];
@@ -2043,7 +2107,8 @@ const homeConfirmModal = document.getElementById('homeConfirmModal');
 
 nextBtn.onclick = handleNext;
 
-refreshLeaderboards();
+refreshLeaderboards(); // renders instantly with empty data while Supabase loads
+loadAllDataFromSupabase(); // then fetches real global data and re-renders
 updateMuteButtonUI();
 
 function toggleMute() {
@@ -2144,10 +2209,14 @@ function toggleClearEnterBtn() {
 
 function executeClearLeaderboard() {
   if (clearSecretInput.value !== "sande") return;
-  
+
   scoreRegistry = { easy: [], medium: [], hard: [], fast: [], custom: {} };
-  localStorage.setItem('savanna_quiz_records', JSON.stringify(scoreRegistry));
-  
+
+  // This now clears the GLOBAL leaderboard for everyone, not just this browser
+  sb.from('scores').delete().neq('id', '00000000-0000-0000-0000-000000000000').then(({ error }) => {
+    if (error) console.error('Failed to clear scores in Supabase:', error);
+  });
+
   closeClearLeaderboardPrompt();
   refreshLeaderboards();
 }
@@ -2648,7 +2717,7 @@ function confirmSaveQuiz() {
   editorQuizName = name;
 
   const id = editorQuizId || ('custom_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8));
-  customQuizzes[id] = {
+  const quizObj = {
     id: id,
     name: name,
     mode: editorSettings.mode,
@@ -2657,8 +2726,21 @@ function confirmSaveQuiz() {
     timerSecs: editorSettings.timerSecs,
     questions: JSON.parse(JSON.stringify(editorQuestions))
   };
+  customQuizzes[id] = quizObj;
   editorQuizId = id;
-  localStorage.setItem('savanna_custom_quizzes', JSON.stringify(customQuizzes));
+
+  // Save globally to Supabase so anyone can browse/play this quiz
+  sb.from('custom_quizzes').upsert({
+    id: quizObj.id,
+    name: quizObj.name,
+    mode: quizObj.mode,
+    base_xp: quizObj.baseXp,
+    streak_xp: quizObj.streakXp,
+    timer_secs: quizObj.timerSecs,
+    questions: quizObj.questions
+  }).then(({ error }) => {
+    if (error) console.error('Failed to save custom quiz to Supabase:', error);
+  });
 
   closeSaveQuizModal();
   playSound('correct');
@@ -2683,6 +2765,7 @@ function openCustomQuizList() {
   quizContainer.classList.remove('expanded');
   subheading.textContent = "Your Custom Quizzes";
   renderCustomQuizList();
+  loadAllDataFromSupabase().then(renderCustomQuizList);
 }
 
 function closeCustomQuizList() {
@@ -3368,11 +3451,12 @@ function showResult() {
     return;
   }
   
+  let newEntry;
   if (selectedLevel === 'custom' && activeCustomQuizId) {
     if (!scoreRegistry.custom) scoreRegistry.custom = {};
     if (!scoreRegistry.custom[activeCustomQuizId]) scoreRegistry.custom[activeCustomQuizId] = [];
     const quizRef = customQuizzes[activeCustomQuizId];
-    scoreRegistry.custom[activeCustomQuizId].push({
+    newEntry = {
       name: activePlayerName,
       score: score,
       xp: currentXp,
@@ -3382,13 +3466,13 @@ function showResult() {
       quizId: activeCustomQuizId,
       quizName: quizRef ? quizRef.name : 'Custom Quiz',
       log: [...sessionQuestionLog]
-    });
+    };
+    scoreRegistry.custom[activeCustomQuizId].push(newEntry);
   } else {
     if(!scoreRegistry[selectedLevel]) {
       scoreRegistry[selectedLevel] = [];
     }
-    
-    scoreRegistry[selectedLevel].push({
+    newEntry = {
       name: activePlayerName,
       score: score,
       xp: currentXp,
@@ -3396,9 +3480,24 @@ function showResult() {
       totalQuestions: activeQuestions.length,
       level: selectedLevel,
       log: [...sessionQuestionLog]
-    });
+    };
+    scoreRegistry[selectedLevel].push(newEntry);
   }
-  localStorage.setItem('savanna_quiz_records', JSON.stringify(scoreRegistry));
+
+  // Save globally to Supabase so everyone sees the same leaderboard
+  sb.from('scores').insert({
+    name: newEntry.name,
+    score: newEntry.score,
+    xp: newEntry.xp,
+    stars: newEntry.stars,
+    total_questions: newEntry.totalQuestions,
+    level: newEntry.level,
+    quiz_id: newEntry.quizId || null,
+    quiz_name: newEntry.quizName || null,
+    log: newEntry.log
+  }).then(({ error }) => {
+    if (error) console.error('Failed to save score to Supabase:', error);
+  });
   
   let worstCategory = "None";
   let maxMisses = 0;
