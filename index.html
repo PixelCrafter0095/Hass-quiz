@@ -336,6 +336,10 @@
     background:var(--hud-bg);
     color:var(--text);
   }
+  .delete-session-btn:hover {
+    background: #fdeceb;
+    color: var(--red);
+  }
   .question{
     font-size:20px;
     font-weight:600;
@@ -733,6 +737,11 @@
   }
   .modal-btn-secondary:hover {
     background: #e5e5e3;
+  }
+  .modal-btn-secondary.danger-text {
+    color: var(--red);
+    width: 100%;
+    margin-top: 10px;
   }
 
   .study-container {
@@ -1396,7 +1405,6 @@
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -1429,7 +1437,7 @@
             <div class="custom-quiz-section-title">Custom Quizzes</div>
             <p class="custom-quiz-section-desc">Build your own quiz, or play one you've already made.</p>
             <div class="level-buttons">
-              <button class="level-btn custom-create-btn" onclick="openCustomEditor()">+ Create Custom Quiz</button>
+              <button class="level-btn custom-create-btn" onclick="requestCreateCustomQuiz()">+ Create Custom Quiz</button>
               <button class="level-btn custom-list-btn" onclick="openCustomQuizList()">Browse Custom Quizzes</button>
             </div>
           </div>
@@ -1483,6 +1491,7 @@
           <div class="top-row">
             <div class="qcount">Session Review</div>
             <div class="hud-stats-group">
+              <button class="home-btn delete-session-btn" onclick="requestDeleteSession()">Delete</button>
               <button class="home-btn" onclick="exportSessionImage()">Export Image</button>
               <button class="home-btn" onclick="closeSessionDetail()">Home</button>
             </div>
@@ -1502,7 +1511,7 @@
           <div class="top-row">
             <div class="qcount">Custom Quizzes</div>
             <div class="hud-stats-group">
-              <button class="home-btn" onclick="openCustomEditor()">+ New Quiz</button>
+              <button class="home-btn" onclick="requestCreateCustomQuiz()">+ New Quiz</button>
               <button class="home-btn" onclick="closeCustomQuizList()">Home</button>
             </div>
           </div>
@@ -1634,6 +1643,28 @@
     </div>
 
     <button class="modal-start-btn" onclick="applyQuizSettings()">Apply Settings</button>
+    <button class="modal-btn-secondary danger-text" id="deleteQuizSettingsBtn" style="display: none;" onclick="openDeleteQuizConfirm()">Delete This Quiz</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="deleteQuizConfirmModal" style="display: none;">
+  <div class="modal-box">
+    <h3>Delete This Quiz?</h3>
+    <p>This will permanently delete this custom quiz and all of its leaderboard records. This cannot be undone.</p>
+    <div class="modal-flex-btns">
+      <button class="modal-btn-secondary" onclick="closeDeleteQuizConfirm()">Cancel</button>
+      <button class="modal-start-btn" style="background: var(--red);" onclick="confirmDeleteQuiz()">Delete Quiz</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="codeGateModal" style="display: none;">
+  <div class="modal-box">
+    <button class="modal-close-btn" onclick="closeCodeGateModal()">&times;</button>
+    <h3 id="codeGateTitle">Enter Code</h3>
+    <p id="codeGateDesc">Enter the code to continue.</p>
+    <input type="text" class="modal-input" id="codeGateInput" placeholder="Enter code..." oninput="toggleCodeGateBtn()">
+    <button class="modal-start-btn" id="codeGateBtn" style="display: none; background: var(--red);" onclick="confirmCodeGate()">Continue</button>
   </div>
 </div>
 
@@ -1987,80 +2018,19 @@ let currentTimerSeconds = FAST_MODE_ALLOWED_SECONDS;
 let activeFilterMetric = 'score'; 
 let activeFilterScope = 'level';   
 
-// --- Supabase setup (global backend) ---
-const SUPABASE_URL = 'https://lzixojxzkxkbpmznbctb.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6aXhvanh6a3hrYnBtem5iY3RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxNTc5ODIsImV4cCI6MjA5ODczMzk4Mn0.2up7zyS5OmPsq5nmaiyqIjkaBVawWxmD00psgd4-3z4';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let scoreRegistry = {
+let scoreRegistry = JSON.parse(localStorage.getItem('savanna_quiz_records')) || {
   easy: [],
   medium: [],
   hard: [],
   fast: [],
   custom: {}
 };
+if (!scoreRegistry.custom) scoreRegistry.custom = {};
 
-let customQuizzes = {};
-
-// Convert a Supabase `scores` row back into the shape the rest of the app expects
-function scoreRowToEntry(row) {
-  return {
-    name: row.name,
-    score: row.score,
-    xp: row.xp,
-    stars: row.stars,
-    totalQuestions: row.total_questions,
-    level: row.level,
-    quizId: row.quiz_id || undefined,
-    quizName: row.quiz_name || undefined,
-    log: row.log
-  };
-}
-
-// Convert a Supabase `custom_quizzes` row back into the shape the rest of the app expects
-function quizRowToEntry(row) {
-  return {
-    id: row.id,
-    name: row.name,
-    mode: row.mode,
-    baseXp: row.base_xp,
-    streakXp: row.streak_xp,
-    timerSecs: row.timer_secs,
-    questions: row.questions
-  };
-}
-
-async function loadAllDataFromSupabase() {
-  try {
-    const { data: scoreRows, error: scoreErr } = await sb.from('scores').select('*');
-    if (scoreErr) throw scoreErr;
-
-    scoreRegistry = { easy: [], medium: [], hard: [], fast: [], custom: {} };
-    (scoreRows || []).forEach(row => {
-      const entry = scoreRowToEntry(row);
-      if (row.level === 'custom') {
-        if (!scoreRegistry.custom[row.quiz_id]) scoreRegistry.custom[row.quiz_id] = [];
-        scoreRegistry.custom[row.quiz_id].push(entry);
-      } else {
-        if (!scoreRegistry[row.level]) scoreRegistry[row.level] = [];
-        scoreRegistry[row.level].push(entry);
-      }
-    });
-
-    const { data: quizRows, error: quizErr } = await sb.from('custom_quizzes').select('*');
-    if (quizErr) throw quizErr;
-
-    customQuizzes = {};
-    (quizRows || []).forEach(row => {
-      customQuizzes[row.id] = quizRowToEntry(row);
-    });
-
-    if (typeof refreshLeaderboards === 'function') refreshLeaderboards();
-  } catch (err) {
-    console.error('Failed to load data from Supabase:', err);
-  }
-}
+let customQuizzes = JSON.parse(localStorage.getItem('savanna_custom_quizzes')) || {};
 let editorQuizId = null;
+let currentSessionDetailEntry = null;
+let currentSessionDetailTier = null;
 let editorQuizName = "";
 let editorQuestions = [];
 let editorCurrentIndex = 0;
@@ -2107,8 +2077,7 @@ const homeConfirmModal = document.getElementById('homeConfirmModal');
 
 nextBtn.onclick = handleNext;
 
-refreshLeaderboards(); // renders instantly with empty data while Supabase loads
-loadAllDataFromSupabase(); // then fetches real global data and re-renders
+refreshLeaderboards();
 updateMuteButtonUI();
 
 function toggleMute() {
@@ -2209,14 +2178,10 @@ function toggleClearEnterBtn() {
 
 function executeClearLeaderboard() {
   if (clearSecretInput.value !== "sande") return;
-
+  
   scoreRegistry = { easy: [], medium: [], hard: [], fast: [], custom: {} };
-
-  // This now clears the GLOBAL leaderboard for everyone, not just this browser
-  sb.from('scores').delete().neq('id', '00000000-0000-0000-0000-000000000000').then(({ error }) => {
-    if (error) console.error('Failed to clear scores in Supabase:', error);
-  });
-
+  localStorage.setItem('savanna_quiz_records', JSON.stringify(scoreRegistry));
+  
   closeClearLeaderboardPrompt();
   refreshLeaderboards();
 }
@@ -2647,12 +2612,40 @@ function openQuizSettingsModal() {
   document.getElementById('qs-streak-xp').value = editorSettings.streakXp;
   document.getElementById('qs-timer-secs').value = editorSettings.timerSecs;
   updateQuizSettingsModeUI();
+  document.getElementById('deleteQuizSettingsBtn').style.display = editorQuizId ? 'block' : 'none';
   document.getElementById('quizSettingsModal').style.display = 'flex';
 }
 
 function closeQuizSettingsModal() {
   applyQuizSettings(true);
   document.getElementById('quizSettingsModal').style.display = 'none';
+}
+
+function openDeleteQuizConfirm() {
+  document.getElementById('quizSettingsModal').style.display = 'none';
+  document.getElementById('deleteQuizConfirmModal').style.display = 'flex';
+}
+
+function closeDeleteQuizConfirm() {
+  document.getElementById('deleteQuizConfirmModal').style.display = 'none';
+}
+
+function confirmDeleteQuiz() {
+  if (editorQuizId && customQuizzes[editorQuizId]) {
+    delete customQuizzes[editorQuizId];
+    localStorage.setItem('savanna_custom_quizzes', JSON.stringify(customQuizzes));
+
+    if (scoreRegistry.custom && scoreRegistry.custom[editorQuizId]) {
+      delete scoreRegistry.custom[editorQuizId];
+      localStorage.setItem('savanna_quiz_records', JSON.stringify(scoreRegistry));
+    }
+  }
+  closeDeleteQuizConfirm();
+  playSound('wrong');
+
+  customEditorView.style.display = 'none';
+  quizContainer.classList.remove('expanded');
+  openCustomQuizList();
 }
 
 function setEditorMode(mode) {
@@ -2717,7 +2710,7 @@ function confirmSaveQuiz() {
   editorQuizName = name;
 
   const id = editorQuizId || ('custom_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8));
-  const quizObj = {
+  customQuizzes[id] = {
     id: id,
     name: name,
     mode: editorSettings.mode,
@@ -2726,21 +2719,8 @@ function confirmSaveQuiz() {
     timerSecs: editorSettings.timerSecs,
     questions: JSON.parse(JSON.stringify(editorQuestions))
   };
-  customQuizzes[id] = quizObj;
   editorQuizId = id;
-
-  // Save globally to Supabase so anyone can browse/play this quiz
-  sb.from('custom_quizzes').upsert({
-    id: quizObj.id,
-    name: quizObj.name,
-    mode: quizObj.mode,
-    base_xp: quizObj.baseXp,
-    streak_xp: quizObj.streakXp,
-    timer_secs: quizObj.timerSecs,
-    questions: quizObj.questions
-  }).then(({ error }) => {
-    if (error) console.error('Failed to save custom quiz to Supabase:', error);
-  });
+  localStorage.setItem('savanna_custom_quizzes', JSON.stringify(customQuizzes));
 
   closeSaveQuizModal();
   playSound('correct');
@@ -2765,7 +2745,6 @@ function openCustomQuizList() {
   quizContainer.classList.remove('expanded');
   subheading.textContent = "Your Custom Quizzes";
   renderCustomQuizList();
-  loadAllDataFromSupabase().then(renderCustomQuizList);
 }
 
 function closeCustomQuizList() {
@@ -2795,7 +2774,7 @@ function renderCustomQuizList() {
     item.querySelector('.custom-quiz-info').onclick = () => playCustomQuiz(quiz.id);
     item.querySelector('.custom-quiz-edit-btn').onclick = (e) => {
       e.stopPropagation();
-      openCustomEditor(quiz.id);
+      requestEditCustomQuiz(quiz.id);
     };
     container.appendChild(item);
   });
@@ -3059,6 +3038,8 @@ function displaySubtopicContent(tIdx, sIdx) {
 
 function openSessionDetail(entry, tier) {
   playSound('click');
+  currentSessionDetailEntry = entry;
+  currentSessionDetailTier = tier;
   menuView.style.display = 'none';
   gameView.style.display = 'none';
   studyView.style.display = 'none';
@@ -3135,7 +3116,84 @@ function openSessionDetail(entry, tier) {
 function closeSessionDetail() {
   sessionDetailView.style.display = 'none';
   quizContainer.classList.remove('expanded');
+  currentSessionDetailEntry = null;
+  currentSessionDetailTier = null;
   goHome();
+}
+
+function requestDeleteSession() {
+  if (!currentSessionDetailEntry) return;
+  const name = currentSessionDetailEntry.name;
+  openCodeGate('Delete Session', `Enter the code to permanently delete ${name}'s session.`, () => {
+    deleteCurrentSessionDetail();
+  });
+}
+
+function deleteCurrentSessionDetail() {
+  const entry = currentSessionDetailEntry;
+  const tier = currentSessionDetailTier;
+  if (!entry) return;
+
+  if (tier === 'custom') {
+    const qid = entry.quizId;
+    if (scoreRegistry.custom && scoreRegistry.custom[qid]) {
+      const idx = scoreRegistry.custom[qid].indexOf(entry);
+      if (idx > -1) scoreRegistry.custom[qid].splice(idx, 1);
+    }
+  } else if (tier && scoreRegistry[tier]) {
+    const idx = scoreRegistry[tier].indexOf(entry);
+    if (idx > -1) scoreRegistry[tier].splice(idx, 1);
+  }
+
+  localStorage.setItem('savanna_quiz_records', JSON.stringify(scoreRegistry));
+  playSound('wrong');
+  closeSessionDetail();
+}
+
+/* ---------- Generic Code Gate ---------- */
+
+let codeGateCallback = null;
+
+function openCodeGate(title, desc, callback) {
+  document.getElementById('codeGateTitle').textContent = title;
+  document.getElementById('codeGateDesc').textContent = desc;
+  document.getElementById('codeGateInput').value = '';
+  document.getElementById('codeGateBtn').style.display = 'none';
+  codeGateCallback = callback;
+  document.getElementById('codeGateModal').style.display = 'flex';
+  document.getElementById('codeGateInput').focus();
+}
+
+function closeCodeGateModal() {
+  document.getElementById('codeGateModal').style.display = 'none';
+  codeGateCallback = null;
+}
+
+function toggleCodeGateBtn() {
+  const val = document.getElementById('codeGateInput').value;
+  document.getElementById('codeGateBtn').style.display = (val === 'sande') ? 'block' : 'none';
+}
+
+function confirmCodeGate() {
+  const val = document.getElementById('codeGateInput').value;
+  if (val !== 'sande') return;
+  const cb = codeGateCallback;
+  closeCodeGateModal();
+  if (cb) cb();
+}
+
+function requestCreateCustomQuiz() {
+  openCodeGate('Create Custom Quiz', 'Enter the code to start building a new quiz.', () => {
+    openCustomEditor();
+  });
+}
+
+function requestEditCustomQuiz(quizId) {
+  const quiz = customQuizzes[quizId];
+  if (!quiz) return;
+  openCodeGate('Edit Custom Quiz', `Enter the code to edit "${quiz.name}".`, () => {
+    openCustomEditor(quizId);
+  });
 }
 
 function goHome() {
@@ -3451,12 +3509,11 @@ function showResult() {
     return;
   }
   
-  let newEntry;
   if (selectedLevel === 'custom' && activeCustomQuizId) {
     if (!scoreRegistry.custom) scoreRegistry.custom = {};
     if (!scoreRegistry.custom[activeCustomQuizId]) scoreRegistry.custom[activeCustomQuizId] = [];
     const quizRef = customQuizzes[activeCustomQuizId];
-    newEntry = {
+    scoreRegistry.custom[activeCustomQuizId].push({
       name: activePlayerName,
       score: score,
       xp: currentXp,
@@ -3466,13 +3523,13 @@ function showResult() {
       quizId: activeCustomQuizId,
       quizName: quizRef ? quizRef.name : 'Custom Quiz',
       log: [...sessionQuestionLog]
-    };
-    scoreRegistry.custom[activeCustomQuizId].push(newEntry);
+    });
   } else {
     if(!scoreRegistry[selectedLevel]) {
       scoreRegistry[selectedLevel] = [];
     }
-    newEntry = {
+    
+    scoreRegistry[selectedLevel].push({
       name: activePlayerName,
       score: score,
       xp: currentXp,
@@ -3480,24 +3537,9 @@ function showResult() {
       totalQuestions: activeQuestions.length,
       level: selectedLevel,
       log: [...sessionQuestionLog]
-    };
-    scoreRegistry[selectedLevel].push(newEntry);
+    });
   }
-
-  // Save globally to Supabase so everyone sees the same leaderboard
-  sb.from('scores').insert({
-    name: newEntry.name,
-    score: newEntry.score,
-    xp: newEntry.xp,
-    stars: newEntry.stars,
-    total_questions: newEntry.totalQuestions,
-    level: newEntry.level,
-    quiz_id: newEntry.quizId || null,
-    quiz_name: newEntry.quizName || null,
-    log: newEntry.log
-  }).then(({ error }) => {
-    if (error) console.error('Failed to save score to Supabase:', error);
-  });
+  localStorage.setItem('savanna_quiz_records', JSON.stringify(scoreRegistry));
   
   let worstCategory = "None";
   let maxMisses = 0;
